@@ -371,8 +371,8 @@ public class CaptureModule implements CameraModule, PhotoController,
             new CameraCharacteristics.Key<>("org.quic.camera.MaxPreviewSize.MaxPreviewSize", int[].class);
     public static CameraCharacteristics.Key<Byte> is_burstshot_supported =
             new CameraCharacteristics.Key<>("org.quic.camera.BurstFPS.isBurstShotSupported", Byte.class);
-    public static CameraCharacteristics.Key<Integer> max_burstshot_fps =
-            new CameraCharacteristics.Key<>("org.quic.camera.BurstFPS.MaxBurstShotFPS", int.class);
+    public static CameraCharacteristics.Key<Float> max_burstshot_fps =
+            new CameraCharacteristics.Key<>("org.quic.camera.BurstFPS.MaxBurstShotFPS", Float.class);
     public static CameraCharacteristics.Key<Byte> is_liveshot_size_same_as_video =
             new CameraCharacteristics.Key<>("org.quic.camera.LiveshotSize.isLiveshotSizeSameAsVideoSize", Byte.class);
     public static CameraCharacteristics.Key<Byte> is_FD_Rendering_In_Video_UI_Supported =
@@ -2175,8 +2175,7 @@ public class CaptureModule implements CameraModule, PhotoController,
                 } else {
                     int preivewFPS = mSettingsManager.getVideoPreviewFPS(mVideoSize,
                             mSettingsManager.getVideoFPS());
-                    if(mSettingsManager.getVideoFPS() == NORMAL_SESSION_MAX_FPS
-                            && preivewFPS == 30){
+                    if(preivewFPS == 30) {
                         mVideoRecordRequestBuilder.addTarget(mMediaRecorderSurface);
                     }
                     configureCameraSessionWithParameters(cameraId, surfaces,
@@ -3187,12 +3186,12 @@ public class CaptureModule implements CameraModule, PhotoController,
             }
         };
 
-    private int calculateMaxFps(){
-        int maxFps = mSettingsManager.getmaxBurstShotFPS();
+    private float calculateMaxFps(){
+        float maxFps = mSettingsManager.getmaxBurstShotFPS();
         if(maxFps > 0) {
             double size = mPictureSize.getWidth() * mPictureSize.getHeight();
             double maxsizefloat = mSupportedMaxPictureSize.getWidth() * mSupportedMaxPictureSize.getHeight();
-            maxFps = (int)Math.round((maxsizefloat * maxFps) / size);
+            maxFps = (float)((maxsizefloat * maxFps) / size);
             if (DEBUG) {
                 Log.i(TAG, "maxsize:" + mSupportedMaxPictureSize.getWidth() + ",height:" + mSupportedMaxPictureSize.getHeight() + "maxsize:" + maxsizefloat);
                 Log.i(TAG, "size:" + mPictureSize.getWidth() + ",height:" + mPictureSize.getHeight() + ",size:" + size);
@@ -5821,17 +5820,14 @@ public class CaptureModule implements CameraModule, PhotoController,
                 mUI.clearFocus();
             }
             mUI.hideUIwhileRecording();
-            if (isHighSpeedRateCapture()) {
-                List<CaptureRequest> slowMoRequests  = mSuperSlomoCapture ?
-                        createSSMBatchRequest(mVideoRecordRequestBuilder) :
-                        ((CameraConstrainedHighSpeedCaptureSession) mCurrentSession).
-                                createHighSpeedRequestList(mVideoRecordRequestBuilder.build());
-                mCurrentSession.setRepeatingBurst(slowMoRequests, mCaptureCallback,
-                        mCameraHandler);
-            } else {
-                mVideoRecordRequestBuilder.addTarget(mMediaRecorderSurface);
-                mCurrentSession.setRepeatingRequest(mVideoRecordRequestBuilder.build(),
-                        mCaptureCallback, mCameraHandler);
+            if (!isHighSpeedRateCapture()) {
+                int preivewFPS = mSettingsManager.getVideoPreviewFPS(mVideoSize,
+                        mSettingsManager.getVideoFPS());
+                if (preivewFPS != 30) {
+                    mVideoRecordRequestBuilder.addTarget(mMediaRecorderSurface);
+                    mCurrentSession.setRepeatingRequest(mVideoRecordRequestBuilder.build(),
+                            mCaptureCallback, mCameraHandler);
+                }
             }
             mCameraHandler.removeMessages(CANCEL_TOUCH_FOCUS, mCameraId[cameraId]);
             if (!mFrameProcessor.isFrameListnerEnabled() && !startMediaRecorder() ||

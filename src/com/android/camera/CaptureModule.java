@@ -3309,6 +3309,9 @@ public class CaptureModule implements CameraModule, PhotoController,
             captureBuilder.set(CaptureRequest.JPEG_THUMBNAIL_SIZE, mVideoSnapshotThumbSize);
             captureBuilder.set(CaptureRequest.JPEG_THUMBNAIL_QUALITY, (byte)80);
             applyVideoSnapshot(captureBuilder, id);
+            if(mLockAFAE) {
+                applySettingsForLockExposure(captureBuilder, id);
+            }
             applyZoom(captureBuilder, id);
             if (mHighSpeedCapture) {
                 captureBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
@@ -3766,6 +3769,9 @@ public class CaptureModule implements CameraModule, PhotoController,
                 builder.setTag(id);
                 addPreviewSurface(builder, null, id);
                 applySettingsForUnlockFocus(builder, id);
+                if(mLockAFAE) {
+                    applySettingsForLockExposure(builder, id);
+                }
                 if (mCaptureSession[id] instanceof CameraConstrainedHighSpeedCaptureSession) {
                     List requestList = CameraUtil.createHighSpeedRequestList(builder.build());
                     mCaptureSession[id].captureBurst(requestList, mCaptureCallback, mCameraHandler);

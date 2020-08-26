@@ -7944,9 +7944,10 @@ public class CaptureModule implements CameraModule, PhotoController,
     private void setFlashMode(CaptureRequest.Builder request, String flashMode) {
         if (request == null || flashMode == null) return;
         boolean isCaptureBurst = isCaptureBrustMode();
+        boolean isFlashTorch   = PersistUtil.getFlashTorchMode();
         switch (flashMode) {
             case "on":
-                if (isCaptureBurst) {
+                if (isCaptureBurst || isFlashTorch) {
                     request.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
                     request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
                 } else {

@@ -71,6 +71,8 @@ public class PersistUtil {
             SystemProperties.getBoolean("persist.sys.camera.bsgc.debug", false);
     private static final int PERSIST_CAMERA_DEV_DEBUG_OPTION =
             SystemProperties.getInt("persist.sys.camera.devoption.debug", 0);
+    private static final boolean PERSIST_CAMERA_FLASH_TORCH_OPTION =
+            SystemProperties.getBoolean("persist.sys.camera.flash.torch.debug", false);
     private static final String PERSIST_CAMERA_STILLMORE_BRCOLR =
             SystemProperties.get("persist.sys.camera.stm_brcolor", "0.5");
     private static final String PERSIST_CAMERA_STILLMORE_BRINTENSITY =
@@ -222,6 +224,10 @@ public class PersistUtil {
 
     public static int getDevOptionLevel() {
         return PERSIST_CAMERA_DEV_DEBUG_OPTION;
+    }
+
+    public static boolean getFlashTorchMode() {
+        return PERSIST_CAMERA_FLASH_TORCH_OPTION;
     }
 
     public static boolean getYUVCallbackEnable() {

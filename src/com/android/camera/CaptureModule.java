@@ -3472,6 +3472,9 @@ public class CaptureModule implements CameraModule, PhotoController,
             CaptureRequest.Builder builder = getRequestBuilder(id);
             builder.setTag(id);
             addPreviewSurface(builder, null, id);
+            if(mLockAFAE == LOCK_AF_AE_STATE_LOCK_DONE){
+                applySettingsForLockExposure(builder, id);
+            }
             applySettingsForPrecapture(builder, id);
             CaptureRequest request = builder.build();
             mPrecaptureRequestHashCode[id] = request.hashCode();
@@ -4117,7 +4120,7 @@ public class CaptureModule implements CameraModule, PhotoController,
 
     private void applySettingsForPrecapture(CaptureRequest.Builder builder, int id) {
         String redeye = mSettingsManager.getValue(SettingsManager.KEY_REDEYE_REDUCTION);
-        if (redeye != null && redeye.equals("on") && !isFlashRequiredInDriver) {
+        if (redeye != null && redeye.equals("on") && !isFlashRequiredInDriver || mLockAFAE == LOCK_AF_AE_STATE_LOCK_DONE) {
             if (DEBUG)
             Log.d(TAG, "Red Eye Reduction is On. " +
                     "Don't set CONTROL_AE_PRECAPTURE_TRIGGER to Start");
@@ -4138,9 +4141,10 @@ public class CaptureModule implements CameraModule, PhotoController,
         builder.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
         applyAFRegions(builder, id);
         applyAERegions(builder, id);
-        builder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
-                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
-
+        if(mLockAFAE == LOCK_AF_AE_STATE_NONE){
+            builder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+                    CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
+        }
         applyFlash(builder, id);
         applyCommonSettings(builder, id);
     }

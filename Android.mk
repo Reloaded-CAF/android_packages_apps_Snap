@@ -37,6 +37,8 @@ LOCAL_RENDERSCRIPT_TARGET_API := 23
 #Do not override for targets using vanilla AOSP
 LOCAL_OVERRIDES_PACKAGES := Camera2
 
+LOCAL_AAPT_FLAGS += --rename-manifest-package org.reloadedos.camera
+
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 
 # If this is an unbundled build (to install separately) then include
